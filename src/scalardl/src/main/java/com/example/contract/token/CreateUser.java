@@ -30,7 +30,6 @@ public class CreateUser extends Contract {
 
     String userId = Integer.toString(argument.getInt(Const.KEY_USER_ID));
     String userName = argument.getString(Const.KEY_USER_NAME);
-    String user_Type;
     int domainId = argument.getInt(Const.KEY_DOMAIN_ID);
     int tokenBalance = argument.getInt(Const.KEY_INIT_BALANCE);
 

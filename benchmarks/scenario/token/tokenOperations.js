@@ -98,7 +98,7 @@ function random_string() {
 }
 
 /**
- * Generates small bank workload with specified number of users
+ * Generates token workload with specified number of users
  * and operations.
  * @returns {Object} array of json objects and each denotes
  * one operations

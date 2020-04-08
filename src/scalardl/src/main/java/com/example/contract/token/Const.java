@@ -2,8 +2,6 @@ package com.example.contract.token;
 
 public class Const {
 
-  private Const() {}
-
   /* Key names for JSON objects stored in Scalar DL */
   public static final String KEY_USER_ID = "user_id";
   public static final String KEY_USER_NAME = "user_name";
