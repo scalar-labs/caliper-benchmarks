@@ -31,7 +31,7 @@ module.exports.run = function() {
     let marbleOwner = owners[txIndex % owners.length];
     let args;
 
-    if (bc.bcType === 'fabric') {
+    if (bc.getType() === 'fabric') {
         args = {
             chaincodeFunction: 'queryMarblesByOwner',
             chaincodeArguments: [marbleOwner]
@@ -44,7 +44,7 @@ module.exports.run = function() {
     }
 
     // TODO: until Fabric query is implemented, use invoke
-    return bc.invokeSmartContract(contx, 'marbles', 'v1', args, 120);
+    return bc.querySmartContract(contx, 'marbles', 'v1', args, 120);
 };
 
 module.exports.end = function() {
