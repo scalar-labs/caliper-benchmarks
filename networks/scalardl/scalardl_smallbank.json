@@ -11,8 +11,8 @@
     "network": {
       "client_properties": {
         "host": "localhost",
-        "port": "50051",
-        "privileged_port": "50052",
+        "port": 50051,
+        "privileged_port": 50052,
         "cert_holder_id": "test",
         "cert_version": 1,
         "cert_path": "networks/scalardl/certs/client.pem",
