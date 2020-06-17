@@ -2,15 +2,14 @@
 test:
   name: smallbank
   description: This is smallbank benchmark for caliper
-  clients:
+  workers:
     type: local
     number: 5
   rounds:
   - label: smallOperations
-    txNumber:
-    - 500
+    txNumber: 500
     rateControl:
-    - type: fixed-rate
+      type: fixed-rate
       opts:
         tps: 20
     arguments:
@@ -18,10 +17,9 @@ test:
       txnPerBatch: 1
     callback: benchmarks/scenario/smallbank/smallbankOperations.js
   - label: query
-    txNumber:
-    - 500
+    txNumber: 500
     rateControl:
-    - type: fixed-rate
+      type: fixed-rate
       opts:
         tps: 50
     callback: benchmarks/scenario/smallbank/query.js

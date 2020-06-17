@@ -2,15 +2,15 @@
 test:
   name: token
   description: This is token benchmark for caliper
-  clients:
+  workers:
     type: local
     number: 1
   rounds:
   - label: Warmup
-    txNumber: # Warmup transactions should be the product of users, domains and number of clients
-    - 6000
+    description: Warmup transactions (should be the product of users, domains and number of clients)
+    txNumber: 6000
     rateControl:
-    - type: fixed-rate
+      type: fixed-rate
       opts:
         tps: 20
     arguments:
@@ -18,10 +18,9 @@ test:
       users: 1200
     callback: benchmarks/scenario/token/tokenOperations.js
   - label: TokenBenchmark
-    txNumber:
-    - 1000
+    txNumber: 1000
     rateControl:
-    - type: fixed-rate
+      type: fixed-rate
       opts:
         tps: 20
     arguments:

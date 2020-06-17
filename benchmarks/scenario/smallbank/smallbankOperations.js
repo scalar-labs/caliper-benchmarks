@@ -175,18 +175,14 @@ module.exports.run = function() {
     let args = generateWorkload();
 
     // rearrange arguments for the Fabric adapter
-    if (bc.bcType === 'fabric') {
-        let ccpArgs = [];
-        for (let arg of args) {
-            let tempArgs = Object.values(arg);
-            let functionArgs = [tempArgs[0].toString(), tempArgs[1].toString(), tempArgs[2].toString(), tempArgs[3].toString()];
-            ccpArgs.push({
+    if (bc.getType() === 'fabric') {
+        args = args.map(arg => {
+            return {
                 chaincodeFunction: arg.transaction_type,
-                chaincodeArguments: functionArgs,
-            });
-        }
-
-        args = ccpArgs;
+                // need to remove the key for the TX type
+                chaincodeArguments: Object.keys(arg).filter(k => k !== 'transaction_type').map(k => arg[k].toString()),
+            };
+        });
     }
 
     return bc.invokeSmartContract(contx, 'smallbank', '1.0', args, 30);
