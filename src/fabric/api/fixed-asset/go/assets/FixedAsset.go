@@ -2,8 +2,9 @@ package assets
 
 // FixedAsset - fixed asset
 type FixedAsset struct {
-	UUID     string
-	Creator  string
-	Bytesize int
-	Content  string
+	Doctype  string `json:"docType"`
+	UUID     string `json:"uuid"`
+	Creator  string `json:"creator"`
+	Bytesize int    `json:"bytesize"`
+	Content  string `json:"content"`
 }

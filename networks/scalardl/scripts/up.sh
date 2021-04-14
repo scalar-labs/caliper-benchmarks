@@ -28,5 +28,3 @@ yes | docker-compose -p caliper-scalar-samples up -d || error_exit "!!! Docker c
 
 echo "Waiting for starting Scalar DL servers (${SLEEP_SEC} seconds)"
 sleep ${SLEEP_SEC}
-
-docker-compose -p caliper-scalar-samples exec -T cassandra cqlsh -f /create_schema.cql
