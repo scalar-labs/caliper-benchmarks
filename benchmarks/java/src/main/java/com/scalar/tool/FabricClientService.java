@@ -2,30 +2,23 @@ package com.scalar.tool;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.cert.CertificateException;
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.TimeUnit;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.hyperledger.fabric.gateway.Contract;
-import org.hyperledger.fabric.gateway.ContractEvent;
 import org.hyperledger.fabric.gateway.ContractException;
-import org.hyperledger.fabric.gateway.DefaultCheckpointers;
 import org.hyperledger.fabric.gateway.DefaultCommitHandlers;
-import org.hyperledger.fabric.gateway.DefaultQueryHandlers;
 import org.hyperledger.fabric.gateway.Gateway;
 import org.hyperledger.fabric.gateway.Identities;
 import org.hyperledger.fabric.gateway.Identity;
@@ -33,16 +26,13 @@ import org.hyperledger.fabric.gateway.Network;
 import org.hyperledger.fabric.gateway.Transaction;
 import org.hyperledger.fabric.gateway.Wallet;
 import org.hyperledger.fabric.gateway.Wallets;
-import org.hyperledger.fabric.gateway.spi.Checkpointer;
-import org.hyperledger.fabric.sdk.BlockEvent;
-import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 import org.hyperledger.fabric.sdk.Peer;
-import org.hyperledger.fabric.sdk.ProposalResponse;
-import org.hyperledger.fabric.sdk.helper.Config;
+import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 
 public final class FabricClientService {
   private Random rand;
   private String networkConfigPath;
+  private String cryptoConfigPath;
   private String commitWaitPolicy;
   private Gateway.Builder gatewayBuilder;
   private Gateway gateway;
@@ -50,13 +40,16 @@ public final class FabricClientService {
   private Wallet wallet;
   private List<List<Peer>> peers;
 
-  public FabricClientService(String networkConfigPath) {
-    this(networkConfigPath, "NONE");
+  public FabricClientService(String networkConfigPath, String cryptoConfigPath) {
+    this(networkConfigPath, cryptoConfigPath, "NONE");
   }
 
-  public FabricClientService(String networkConfigPath, String commitWaitPolicy) {
+  public FabricClientService(String networkConfigPath,
+                             String cryptoConfigPath,
+                             String commitWaitPolicy) {
     this.rand = new Random();
     this.networkConfigPath = networkConfigPath;
+    this.cryptoConfigPath = cryptoConfigPath;
     this.commitWaitPolicy = commitWaitPolicy;
     this.gatewayBuilder = Gateway.createBuilder();
     this.wallet = Wallets.newInMemoryWallet();
@@ -101,11 +94,10 @@ public final class FabricClientService {
     }
   }
 
-  private static Identity newOrg1UserIdentity()
+  private Identity newOrg1UserIdentity()
     throws IOException, CertificateException, InvalidKeyException {
-    // TODO: should get the paths from config option or file
     Path credentialPath = Paths.get(
-      "networks", "fabric", "config_swarm_raft", "crypto-config",
+      this.cryptoConfigPath,
       "peerOrganizations", "org1.example.com", "users", "User1@org1.example.com", "msp");
 
     Path certificatePath = credentialPath.resolve(
@@ -153,11 +145,9 @@ public final class FabricClientService {
     List<Peer> endorsers = generateEndorsers();
     Contract contract = network.getContract(contractName);
     Transaction transaction = contract.createTransaction(functionName);
-    // transactionInvocation = new TransactionInvocation(transaction);
-    // String[] args = newStringArray(parseJsonArray(argsJson));
     transaction.setEndorsingPeers(endorsers);
     try {
-      byte[] result = transaction.submit(args);
+      transaction.submit(args);
     } catch (Exception e) {
       throw new ContractException("Contract execution failed.", e); 
     }

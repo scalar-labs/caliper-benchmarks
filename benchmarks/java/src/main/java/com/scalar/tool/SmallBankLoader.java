@@ -1,28 +1,15 @@
 package com.scalar.tool;
 
-import com.scalar.tool.FabricClientService;
-
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.scalar.dl.client.config.ClientConfig;
-import com.scalar.dl.client.exception.ClientException;
-import com.scalar.dl.client.service.ClientModule;
-import com.scalar.dl.client.service.ClientService;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.json.Json;
-import javax.json.JsonObject;
+import org.hyperledger.fabric.gateway.ContractException;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-
-import org.hyperledger.fabric.gateway.ContractException;
 
 @Command(name = "smallbank-loader", description = "Create accounts.")
 public class SmallBankLoader implements Callable<Integer> {
@@ -33,6 +20,20 @@ public class SmallBankLoader implements Callable<Integer> {
     paramLabel = "NETWORK_CONFIG",
     description = "A configuration file for Fabric Network.")
   private String networkConfig;
+
+  @CommandLine.Option(
+    names = {"--crypto-config"},
+    required = true,
+    paramLabel = "CRYPTO_CONFIG",
+    description = "A crypto configuration file for Fabric Network.")
+  private String cryptoConfig;
+
+  @CommandLine.Option(
+    names = {"--commit-wait-policy"},
+    required = false,
+    paramLabel = "COMMIT_WAIT_POLICY",
+    description = "A waiting policy after submitting a transaction. (e.g., NETWORK_SCOPE_ALLFORTX)")
+  private String commitWaitPolicy = "NONE";
 
   @CommandLine.Option(
       names = {"--num-accounts"},
@@ -64,34 +65,17 @@ public class SmallBankLoader implements Callable<Integer> {
 
   @Override
   public Integer call() throws Exception {
-    // TODO: switch scalar and fabric
-    // Injector injector =
-    //     Guice.createInjector(new ClientModule(new ClientConfig(new File(properties))));
-    // ClientService service = injector.getInstance(ClientService.class);
-
     ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-    final long start = System.currentTimeMillis();
-    long from = start;
+    FabricClientService service = new FabricClientService(networkConfig, cryptoConfig, commitWaitPolicy);
     for (int i = 0; i < numThreads; ++i) {
       executor.execute(
           () -> {
-            FabricClientService service = new FabricClientService(networkConfig);
             while (true) {
               String id = Integer.toString(counter.getAndIncrement());
-              /*
-              JsonObject jsonArgument =
-                  Json.createObjectBuilder()
-                      .add("id", id)
-                      .add("amount", DEFAULT_BALANCE)
-                      .build();
-              */
               try {
                 if (counter.get() > numAccounts) {
                   break;
                 }
-                /*
-                service.executeContract(contractId, jsonArgument, Optional.empty());
-                */
                 List<String> args = new ArrayList<>();
                 args.add(id);
                 args.add("John Doe");
@@ -99,8 +83,6 @@ public class SmallBankLoader implements Callable<Integer> {
                 args.add(Integer.toString(DEFAULT_BALANCE));
                 service.executeContract("smallbank", "create_account",
                   args.toArray(new String[args.size()]));
-              } catch (ClientException e) {
-                e.printStackTrace();
               } catch (ContractException e) {
                 // e.printStackTrace();
               }
