@@ -1,0 +1,6 @@
+bin/*
+crypto-config/*
+configtx.yaml
+crypto-config.yaml
+genesis.block
+mychannel.tx
